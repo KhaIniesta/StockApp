@@ -1,16 +1,21 @@
 export const getStockInfo = async (stockCode) => {
   try {
     const response = await fetch(
-      `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${stockCode}&apikey=6S6IQWNDK9C36DOI`,
+      `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${stockCode}&apikey=S5O28T0LCRPBBZCH`,
     );
     const json = await response.json();
-    if (json['Global Quote'] && json['Global Quote']['10. change percent'] !== undefined) {
-      return json['Global Quote']['10. change percent'];
+    console.log(json)
+    if (json['Global Quote']) {
+      if (json['Global Quote'].length = 0) {
+        return "Invalid stock code!"
+      }
+      if (json['Global Quote']['10. change percent'] !== undefined) {
+        return json['Global Quote']['10. change percent'];
+      }
     } else {
       return "Exceeded the limit!"
     }
   } catch (error) {
-    console.error(error);
-    return null
+    return "Invalid URL!"
   }
 };

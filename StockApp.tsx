@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   View,
   Dimensions,
+  ActivityIndicator,
 } from 'react-native';
 import StockButton from './StockButton';
 import {getStockInfo} from './api';
@@ -25,7 +26,16 @@ function StockApp(): React.JSX.Element {
 
   const [stockName, setStockName] = useState(stockList[0].stockName);
   const [stockCode, setStockCode] = useState(stockList[0].stockCode);
-  const [stockChangePercent, setStockChangePercent] = useState('8.700 (-1.5387%)');
+  const [isLoading, setIsLoading] = useState(false);
+  const [stockChangePercent, setStockChangePercent] = useState('');
+
+  useEffect(() => {
+    setIsLoading(true);
+    getStockInfo(stockList[0].stockCode).then(changePercent => {
+      setStockChangePercent(changePercent);
+      setIsLoading(false);
+    });
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -40,16 +50,29 @@ function StockApp(): React.JSX.Element {
             name={stock.stockName}
             key={index}
             onPress={() => {
-              setStockName(stock.stockName)
-              setStockCode(stock.stockCode)
+              if (!isLoading) {
+                setStockName(stock.stockName);
+                setStockCode(stock.stockCode);
+                setIsLoading(true);
 
-              getStockInfo(stock.stockCode).then(changePercent => {
-                setStockChangePercent(changePercent);
-              });
+                getStockInfo(stock.stockCode).then(changePercent => {
+                  setStockChangePercent(changePercent);
+                  setIsLoading(false);
+                });
+              }
             }}
           />
         ))}
       </View>
+      {isLoading && (
+        <View style={styles.activityIndicator}>
+          <ActivityIndicator
+            animating={isLoading}
+            size="large"
+            color="#00ff00"
+          />
+        </View>
+      )}
     </View>
   );
 }
@@ -82,6 +105,16 @@ const styles = StyleSheet.create({
     backgroundColor: 'pink',
     justifyContent: 'space-between',
     paddingHorizontal: 10,
+  },
+  activityIndicator: {
+    flex: 1,
+    backgroundColor: 'red',
+    position: 'absolute',
+    justifyContent: 'center',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
   },
 });
 
